@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // 1. Pega a URL da API do arquivo .env
-const apiURL = import.meta.env.VITE_API_URL;
+const apiURL = 'https://todo-app-backend-uyb2.onrender.com';
 
 // ----- DEBUGGING -----
 console.log("API URL usada pelo Axios:", apiURL); 
