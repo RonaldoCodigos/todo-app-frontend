@@ -1,5 +1,27 @@
+# Dependencies
 node_modules
+
+# Build directory
 dist
-.env
-.env.*
+dist-ssr
+
+# Log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Environment variables
+# Ignore ALL .env files...
+.env*
+# ...EXCEPT for .env.production and .env.example
+!.env.production
 !.env.example
