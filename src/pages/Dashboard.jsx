@@ -37,7 +37,7 @@ function Dashboard() {
   // --- Funções: Deletar Tarefa ---
   const handleOpenDeleteDialog = (id) => {
     // ---- LOG 1: Confirma que o clique chamou a função ----
-    console.log("[handleOpenDeleteDialog] Chamada com ID:", id); 
+    console.log("[handleOpenDeleteDialog] Chamada com ID:", id); // <-- LOG ADICIONADO AQUI
     setTodoToDelete(id);
     setOpenDeleteDialog(true);
   };
@@ -58,37 +58,19 @@ function Dashboard() {
 
 
   // ---- LOG 2: Mostra o valor do estado ANTES da renderização ----
-  console.log("[Dashboard Render] Estado openDeleteDialog:", openDeleteDialog);
+  console.log("[Dashboard Render] Estado openDeleteDialog:", openDeleteDialog); // <-- LOG ADICIONADO AQUI
 
 
   // --- Renderização ---
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static">
-          {/* ... (AppBar JSX) ... */}
-         <Toolbar>
-           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-             Minhas Tarefas
-           </Typography>
-           <Button color="inherit" startIcon={<LogoutIcon />} onClick={handleLogout}>
-             Sair
-           </Button>
-         </Toolbar>
+          {/* ... (AppBar JSX continua igual) ... */}
       </AppBar>
 
       <Container component="main" maxWidth="md" sx={{ mt: 4 }}>
         <Box component="form" onSubmit={handleCreateTodo} sx={{ display: 'flex', gap: 2, mb: 4 }}>
-            {/* ... (Formulário JSX) ... */}
-           <TextField
-             fullWidth
-             variant="outlined"
-             label="Adicionar nova tarefa..."
-             value={text}
-             onChange={(e) => setText(e.target.value)}
-           />
-           <Button type="submit" variant="contained" size="large">
-             Adicionar
-           </Button>
+            {/* ... (Formulário JSX continua igual) ... */}
         </Box>
 
         {loading ? (
@@ -97,11 +79,7 @@ function Dashboard() {
           </Box>
         ) : (
           <List>
-            {todos.length === 0 && (
-              <Typography align="center">
-                Nenhuma tarefa encontrada. Crie sua primeira tarefa!
-              </Typography>
-            )}
+            {/* ... (map das tarefas continua igual) ... */}
             {todos.map((todo) => (
               <ListItem
                 key={todo._id}
