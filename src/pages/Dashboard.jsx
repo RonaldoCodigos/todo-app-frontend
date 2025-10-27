@@ -7,7 +7,7 @@ import {
   Container, Box, Typography, TextField, Button, List, ListItem,
   ListItemText, IconButton, AppBar, Toolbar, Alert, CircularProgress,
   Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle,
-  Snackbar, Checkbox 
+  Snackbar, Checkbox
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import LogoutIcon from '@mui/icons-material/Logout';
@@ -18,14 +18,14 @@ function Dashboard() {
   const [todos, setTodos] = useState([]);
   const [text, setText] = useState('');
   const [loading, setLoading] = useState(true);
-  
+
   // Estados de Notificação e Modais (continuam iguais)
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [todoToDelete, setTodoToDelete] = useState(null);
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [todoToEdit, setTodoToEdit] = useState(null);
-  const [newText, setNewText] = useState(''); 
+  const [newText, setNewText] = useState('');
 
   // 2. REMOVEMOS a função getAuthConfig() - o apiClient faz isso!
 
@@ -35,7 +35,7 @@ function Dashboard() {
       try {
         setLoading(true);
         // 3. USA apiClient (já tem a baseURL e o token)
-        const response = await apiClient.get('/todos'); 
+        const response = await apiClient.get('/todos');
         setTodos(response.data);
       } catch (err) {
         setSnackbar({ open: true, message: 'Erro ao carregar tarefas.', severity: 'error' });
@@ -56,7 +56,10 @@ function Dashboard() {
       const response = await apiClient.post('/todos', { text });
       setTodos([response.data, ...todos]);
       setText('');
-      setSnackbar({ open: true, message: 'Tarefa adicionada com sucesso!', severity: 'success' });
+      // Adiciona log e aumenta duração para debug do Snackbar
+      const successSnackbarState = { open: true, message: 'Tarefa adicionada com sucesso!', severity: 'success' };
+      setSnackbar(successSnackbarState);
+      console.log("[handleCreateTodo] Estado do Snackbar definido:", successSnackbarState); // Log para debug
     } catch (err) {
       setSnackbar({ open: true, message: 'Erro ao criar tarefa.', severity: 'error' });
       console.error("Erro handleCreateTodo:", err);
@@ -79,7 +82,7 @@ function Dashboard() {
       handleCloseDeleteDialog();
     }
   };
-  
+
   // --- Funções: Editar Tarefa (Modal) ---
   const handleOpenEditDialog = (todo) => { /* ... (código igual) ... */ setTodoToEdit(todo); setNewText(todo.text); setOpenEditDialog(true); };
   const handleCloseEditDialog = () => { /* ... (código igual) ... */ setOpenEditDialog(false); setTodoToEdit(null); setNewText(''); };
@@ -87,7 +90,7 @@ function Dashboard() {
     try {
       // 6. USA apiClient
       const response = await apiClient.put(`/todos/${todoToEdit._id}`, { text: newText });
-      setTodos(todos.map(todo => 
+      setTodos(todos.map(todo =>
         todo._id === todoToEdit._id ? response.data : todo
       ));
       setSnackbar({ open: true, message: 'Tarefa atualizada com sucesso!', severity: 'success' });
@@ -104,7 +107,7 @@ function Dashboard() {
     try {
       // 7. USA apiClient
       const response = await apiClient.put(`/todos/${todo._id}`, { completed: !todo.completed });
-      setTodos(todos.map(t => 
+      setTodos(todos.map(t =>
         t._id === todo._id ? response.data : t
       ));
       // Opcional: Snackbar para sucesso no toggle
@@ -149,7 +152,7 @@ function Dashboard() {
              Adicionar
            </Button>
         </Box>
-        
+
         {loading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
             <CircularProgress />
@@ -191,11 +194,20 @@ function Dashboard() {
           </List>
         )}
       </Container>
-      
-      {/* Modais e Snackbar (JSX continua igual) */}
+
+      {/* Modais e Snackbar (JSX continua igual, aumentei a duração do Snackbar) */}
       <Dialog open={openDeleteDialog} onClose={handleCloseDeleteDialog}>{/* ... */}</Dialog>
       <Dialog open={openEditDialog} onClose={handleCloseEditDialog}>{/* ... */}</Dialog>
-      <Snackbar open={snackbar.open} autoHideDuration={4000} onClose={handleSnackbarClose} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>{/* ... */}</Snackbar>
+      <Snackbar
+         open={snackbar.open}
+         autoHideDuration={10000} // Aumentei para 10 segundos para debug
+         onClose={handleSnackbarClose}
+         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+       >
+         <Alert onClose={handleSnackbarClose} severity={snackbar.severity} sx={{ width: '100%' }}>
+           {snackbar.message}
+         </Alert>
+       </Snackbar>
 
     </Box>
   );
