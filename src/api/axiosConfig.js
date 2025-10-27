@@ -1,48 +1,44 @@
-// Em: src/api/axiosConfig.js
-// TESTE SIMPLIFICADO E COM HACK NO INTERCEPTOR
-
 import axios from 'axios';
 
-// Pega a URL da API da variável de ambiente VITE_API_URL
+// 1. Pega a URL da API da variável de ambiente VITE_API_URL
 const apiURL = import.meta.env.VITE_API_URL;
 
-console.log("[axiosConfig] VITE_API_URL lida no topo:", apiURL); // Log 1
+// ----- DEBUGGING -----
+console.log("[axiosConfig] VITE_API_URL lida no topo:", apiURL);
+// ----- FIM DEBUGGING -----
 
-// Cria a instância do axios
+// 2. Cria uma "instância" do axios pré-configurada
 const apiClient = axios.create({
-  // Tenta definir a baseURL
   baseURL: `${apiURL}/api`,
 });
 
-console.log("[axiosConfig] Axios baseURL inicial configurada:", apiClient.defaults.baseURL); // Log 2
+// ----- DEBUGGING 2 -----
+console.log("[axiosConfig] Axios baseURL inicial configurada:", apiClient.defaults.baseURL);
+// ----- FIM DEBUGGING 2 -----
 
-// Interceptor: Adiciona o token E TENTA CORRIGIR A BASEURL SE NECESSÁRIO
+// 3. Interceptor: Adiciona o token JWT automaticamente
 apiClient.interceptors.request.use(
   (config) => {
-    // Tenta pegar a variável de ambiente DE NOVO aqui dentro
-    const currentApiUrl = import.meta.env.VITE_API_URL;
-    console.log("[Interceptor] VITE_API_URL lida no interceptor:", currentApiUrl); // Log 3
-
-    // HACK: Se a baseURL ainda estiver errada (localhost ou indefinida), força a correta
-    if (!config.baseURL || config.baseURL === '/api' || config.baseURL.includes('localhost')) {
-         if(currentApiUrl) { // Só define se a URL foi lida
-            console.warn("[Interceptor] CORRIGINDO baseURL para:", `${currentApiUrl}/api`); // Log Aviso
-            config.baseURL = `${currentApiUrl}/api`;
-         } else {
-            console.error("[Interceptor] ERRO: VITE_API_URL não lida, impossível corrigir baseURL!"); // Log Erro
-         }
-    }
+    // ----- DEBUGGING INTERCEPTOR -----
+    console.log("[Interceptor] Interceptando requisição para:", config.url);
+    const currentApiUrl = import.meta.env.VITE_API_URL; // Re-ler para garantir
+    console.log("[Interceptor] VITE_API_URL lida no interceptor:", currentApiUrl);
+    // ----- FIM DEBUGGING INTERCEPTOR -----
 
     // Adiciona o token
     const token = localStorage.getItem('token');
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`;
+      console.log("[Interceptor] Header Authorization ADICIONADO.");
+    } else {
+      console.warn("[Interceptor] Header Authorization NÃO adicionado (sem token).");
     }
 
-    console.log("[Interceptor] Config Final da Requisição:", config); // Log 4 (Mostra a URL final)
+    console.log("[Interceptor] Config Final da Requisição:", config);
     return config;
   },
   (error) => {
+    console.error("[Interceptor] ERRO na configuração da requisição:", error);
     return Promise.reject(error);
   }
 );

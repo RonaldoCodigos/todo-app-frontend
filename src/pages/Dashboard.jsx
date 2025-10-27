@@ -1,6 +1,3 @@
-// Em: src/pages/Dashboard.jsx
-// VERSÃO FINAL COM TODOS OS LOGS DE DIAGNÓSTICO
-
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import apiClient from '../api/axiosConfig'; // Usa o apiClient configurado
@@ -43,8 +40,10 @@ function Dashboard() {
         console.log("[Dashboard useEffect] Token disponível. Setando loading=true..."); // Log C
         setLoading(true);
         console.log("[Dashboard useEffect] Fazendo chamada GET /todos..."); // Log D
-        const config = { headers: { Authorization: `Bearer ${currentToken}` } }; // Passa token manualmente como teste
-        const response = await apiClient.get('/todos', config);
+        // Passa a configuração do token manualmente para ter certeza (opcional com interceptor)
+        // const config = { headers: { Authorization: `Bearer ${currentToken}` } };
+        // const response = await apiClient.get('/todos', config);
+        const response = await apiClient.get('/todos'); // Confia no interceptor
         console.log("[Dashboard useEffect] Chamada GET /todos BEM-SUCEDIDA. Resposta:", response.data); // Log E
         setTodos(response.data);
         console.log("[Dashboard useEffect] Estado 'todos' atualizado."); // Log F
@@ -168,7 +167,6 @@ function Dashboard() {
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static">
-          {/* ... (AppBar JSX continua igual) ... */}
          <Toolbar>
            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}> Minhas Tarefas </Typography>
            <Button color="inherit" startIcon={<LogoutIcon />} onClick={handleLogout}> Sair </Button>
@@ -177,7 +175,6 @@ function Dashboard() {
 
       <Container component="main" maxWidth="md" sx={{ mt: 4 }}>
         <Box component="form" onSubmit={handleCreateTodo} sx={{ display: 'flex', gap: 2, mb: 4 }}>
-            {/* ... (Formulário JSX continua igual) ... */}
            <TextField fullWidth variant="outlined" label="Adicionar nova tarefa..." value={text} onChange={(e) => setText(e.target.value)} />
            <Button type="submit" variant="contained" size="large"> Adicionar </Button>
         </Box>
