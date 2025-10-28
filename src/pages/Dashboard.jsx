@@ -1,6 +1,10 @@
+// Em: src/pages/Dashboard.jsx
+// VERSÃO FINAL COMPLETA (CRUD + Autenticação + Tema + Logs)
+
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import apiClient from '../api/axiosConfig'; // Usa o apiClient configurado
+import apiClient from '../api/axiosConfig';
+import { useAppTheme } from '../context/ThemeContext'; // 1. Importa o hook do contexto de tema
 
 // Importações do Material-UI
 import {
@@ -12,12 +16,18 @@ import {
 import DeleteIcon from '@mui/icons-material/Delete';
 import LogoutIcon from '@mui/icons-material/Logout';
 import EditIcon from '@mui/icons-material/Edit';
+// 2. Importa os ícones de tema
+import Brightness4Icon from '@mui/icons-material/Brightness4'; // Ícone Lua (Escuro)
+import Brightness7Icon from '@mui/icons-material/Brightness7'; // Ícone Sol (Claro)
 
 function Dashboard() {
   const { logout } = useAuth();
+  // 3. Pega o modo atual e a função de alternar do contexto de tema
+  const { mode, toggleThemeMode } = useAppTheme();
+
   const [todos, setTodos] = useState([]);
   const [text, setText] = useState('');
-  const [loading, setLoading] = useState(true); // Começa carregando
+  const [loading, setLoading] = useState(true);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [todoToDelete, setTodoToDelete] = useState(null);
@@ -40,9 +50,6 @@ function Dashboard() {
         console.log("[Dashboard useEffect] Token disponível. Setando loading=true..."); // Log C
         setLoading(true);
         console.log("[Dashboard useEffect] Fazendo chamada GET /todos..."); // Log D
-        // Passa a configuração do token manualmente para ter certeza (opcional com interceptor)
-        // const config = { headers: { Authorization: `Bearer ${currentToken}` } };
-        // const response = await apiClient.get('/todos', config);
         const response = await apiClient.get('/todos'); // Confia no interceptor
         console.log("[Dashboard useEffect] Chamada GET /todos BEM-SUCEDIDA. Resposta:", response.data); // Log E
         setTodos(response.data);
@@ -169,6 +176,12 @@ function Dashboard() {
       <AppBar position="static">
          <Toolbar>
            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}> Minhas Tarefas </Typography>
+
+           {/* 4. BOTÃO DE ALTERNAR TEMA ADICIONADO AQUI */}
+           <IconButton sx={{ ml: 1 }} onClick={toggleThemeMode} color="inherit" title={mode === 'dark' ? "Mudar para tema claro" : "Mudar para tema escuro"}>
+             {mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
+           </IconButton>
+
            <Button color="inherit" startIcon={<LogoutIcon />} onClick={handleLogout}> Sair </Button>
          </Toolbar>
       </AppBar>
