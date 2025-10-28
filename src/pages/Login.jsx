@@ -77,15 +77,25 @@ function Login() {
             control={<Checkbox value="remember" color="primary" checked={rememberMe} onChange={handleRememberMeChange} />}
             label="Lembrar meu e-mail"
           />
-
-          {/* === ADIÇÃO AQUI === */}
           <Typography variant="caption" display="block" gutterBottom sx={{ mt: 1, textAlign: 'center', color: 'text.secondary' }}>
             Sua sessão permanecerá ativa por 30 dias.
           </Typography>
+
+          {/* === ADICIONADO LINK "ESQUECEU A SENHA?" === */}
+          <Box sx={{ textAlign: 'right', width: '100%', mt: 1 }}>
+            <Link component={RouterLink} to="/forgot-password" variant="body2">
+              Esqueceu a senha?
+            </Link>
+          </Box>
           {/* === FIM DA ADIÇÃO === */}
 
           <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }} > Entrar </Button>
-          <Link component={RouterLink} to="/register" variant="body2"> {"Não tem uma conta? Registre-se"} </Link>
+
+          {/* Link para Registro */}
+          <Link component={RouterLink} to="/register" variant="body2" sx={{ textAlign: 'center', display: 'block' }}>
+            {"Não tem uma conta? Registre-se"}
+          </Link>
+
         </Box>
       </Box>
     </Container>
