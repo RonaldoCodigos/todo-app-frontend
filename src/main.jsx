@@ -1,17 +1,17 @@
+// Em: src/main.jsx
+// VERSÃO FINAL LIMPA
+
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App.jsx';
 import './index.css';
 import { BrowserRouter } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
-
-// 1. Importa o NOSSO Provedor de Tema
-import { AppThemeProvider } from './context/ThemeContext';
+import { AppThemeProvider } from './context/ThemeContext'; // Usa o provedor de tema
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    {/* 2. Usa o AppThemeProvider para envolver tudo */}
-    <AppThemeProvider>
+    <AppThemeProvider> {/* Envolve com o provedor de tema */}
       <BrowserRouter>
         <AuthProvider>
           <App />
