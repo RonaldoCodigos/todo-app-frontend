@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import apiClient from '../api/axiosConfig';
 import { useNavigate, useParams, Link as RouterLink } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext'; // Para logar após o reset
+import { useAuth } from '../context/AuthContext';
 
 // Importações do Material-UI
 import { Container, Box, Typography, TextField, Button, Alert, Link, CircularProgress, InputAdornment, IconButton } from '@mui/material';
@@ -15,12 +15,10 @@ function ResetPassword() {
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const { login } = useAuth(); // Pega a função de login
+  const { login } = useAuth();
+  const { token } = useParams();
 
-  // 1. Hook para ler parâmetros da URL (o token)
-  const { token } = useParams(); 
-
-  // Estados e funções para visualizar senha (igual ao Login/Register)
+  // Estados e funções para visualizar senha
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const handleClickShowPassword = () => setShowPassword((show) => !show);
@@ -35,53 +33,68 @@ function ResetPassword() {
     }
   }, [token]);
 
+  // --- FUNÇÃO COM LOGS DE DIAGNÓSTICO ---
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setMessage('');
+    console.log("[ResetPassword handleSubmit] Iniciado."); // Log RP1
 
-    // 2. Validação: senhas coincidem?
+    // Validações
     if (password !== confirmPassword) {
+      console.log("[ResetPassword handleSubmit] Erro: Senhas não coincidem."); // Log RP2
       setError('As senhas não coincidem.');
       return;
     }
-    // Validação: senha tem 6+ caracteres? (O back-end também valida, mas é bom ter no front)
     if (password.length < 6) {
-        setError('A senha deve ter no mínimo 6 caracteres.');
-        return;
+      console.log("[ResetPassword handleSubmit] Erro: Senha curta."); // Log RP3
+      setError('A senha deve ter no mínimo 6 caracteres.');
+      return;
     }
     if (!token) {
-        setError('Token de redefinição inválido ou ausente.');
-        return;
+      console.log("[ResetPassword handleSubmit] Erro: Token ausente."); // Log RP4
+      setError('Token de redefinição inválido ou ausente.');
+      return;
     }
 
     setLoading(true);
+    console.log("[ResetPassword handleSubmit] Setou loading=true."); // Log RP5
 
     try {
-      // 3. Chama a API PATCH do back-end, passando o token na URL
-      const response = await apiClient.patch(`/users/reset-password/${token}`, { 
+      const resetUrl = `/users/reset-password/${token}`;
+      console.log("[ResetPassword handleSubmit] Tentando chamar apiClient.patch para:", resetUrl); // Log RP6
+
+      // Chama a API PATCH do back-end
+      const response = await apiClient.patch(resetUrl, {
         password: password // Envia apenas a nova senha no corpo
       });
-      
+
+      console.log("[ResetPassword handleSubmit] Chamada PATCH bem-sucedida:", response.data); // Log RP7
       setMessage(response.data.message || 'Senha redefinida com sucesso!');
-      
-      // 4. Opcional: Loga o usuário automaticamente com o token de login retornado
+
       if (response.data.token) {
+        console.log("[ResetPassword handleSubmit] Logando usuário com novo token..."); // Log RP8
         login(response.data.token);
       }
 
-      // 5. Redireciona para o Dashboard após um pequeno atraso
+      console.log("[ResetPassword handleSubmit] Agendando redirecionamento..."); // Log RP9
       setTimeout(() => {
         navigate('/');
-      }, 3000); // Espera 3 segundos para o usuário ler a mensagem
+      }, 3000);
 
     } catch (err) {
+      console.error('[ResetPassword handleSubmit] ERRO no catch:', err); // Log RP10 (ERRO!)
+      if (err.response) { console.error("[ResetPassword handleSubmit] Erro - Status:", err.response.status); console.error("[ResetPassword handleSubmit] Erro - Data:", err.response.data); }
+      else if (err.request) { console.error("[ResetPassword handleSubmit] Erro - Sem resposta:", err.request); }
+      else { console.error("[ResetPassword handleSubmit] Erro - Configuração:", err.message); }
       setError(err.response?.data?.message || 'Erro ao redefinir a senha.');
-      console.error('Erro reset password:', err);
     } finally {
+      console.log("[ResetPassword handleSubmit] Entrando no finally. Setando loading=false..."); // Log RP11
       setLoading(false);
+      console.log("[ResetPassword handleSubmit] Finalizado."); // Log RP12
     }
   };
+  // --- FIM DA FUNÇÃO COM LOGS ---
 
   return (
     <Container component="main" maxWidth="xs">
@@ -99,11 +112,9 @@ function ResetPassword() {
         
         <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1, width: '100%' }}>
           
-          {/* Mostra mensagem de sucesso OU erro */}
           {message && <Alert severity="success" sx={{ width: '100%', mb: 2 }}>{message}</Alert>}
           {error && <Alert severity="error" sx={{ width: '100%', mb: 2 }}>{error}</Alert>}
 
-          {/* Campo Nova Senha */}
           <TextField
             margin="normal"
             required
@@ -115,13 +126,12 @@ function ResetPassword() {
             autoComplete="new-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            disabled={loading || !!message} // Desabilita se carregando ou sucesso
+            disabled={loading || !!message}
             InputProps={{
               endAdornment: ( <InputAdornment position="end"> <IconButton aria-label="toggle password visibility" onClick={handleClickShowPassword} onMouseDown={handleMouseDownPassword} edge="end"> {showPassword ? <VisibilityOff /> : <Visibility />} </IconButton> </InputAdornment> ),
             }}
           />
 
-          {/* Campo Confirmar Nova Senha */}
           <TextField
             margin="normal"
             required
@@ -149,8 +159,7 @@ function ResetPassword() {
             {loading ? <CircularProgress size={24} color="inherit" /> : 'Redefinir Senha'}
           </Button>
 
-          {/* Link opcional para voltar ao Login se o usuário desistir */}
-          {!message && ( // Só mostra se ainda não deu sucesso
+          {!message && (
              <Link component={RouterLink} to="/login" variant="body2">
                {"Voltar para Login"}
              </Link>
